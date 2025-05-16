@@ -1661,7 +1661,12 @@ public class TmdbMetadataService
 
             foreach (var tmdbSeason in tmdbShow.TmdbSeasons)
             {
-                await DownloadSeasonImages(tmdbSeason.TmdbSeasonID, tmdbSeason.TmdbShowID, tmdbSeason.SeasonNumber, tmdbShow.OriginalLanguage, forceDownload);
+                if (tmdbSeason.SeasonNumber == 1) {
+                    await _imageService.DownloadImagesByType(images.Posters, ImageEntityType.Poster, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoPosters, languages, forceDownload);
+                } else {
+                    await DownloadSeasonImages(tmdbSeason.TmdbSeasonID, tmdbSeason.TmdbShowID, tmdbSeason.SeasonNumber, tmdbShow.OriginalLanguage, forceDownload);
+                }
+
                 foreach (var tmdbEpisode in tmdbSeason.TmdbEpisodes)
                 {
                     await DownloadEpisodeImages(tmdbEpisode.TmdbEpisodeID, tmdbEpisode.TmdbShowID, tmdbSeason.SeasonNumber, tmdbEpisode.EpisodeNumber, tmdbShow.OriginalLanguage, forceDownload);
