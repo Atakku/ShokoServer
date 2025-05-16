@@ -371,7 +371,9 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
             .ToDictionary(image => image.ImageType);
         var images = new List<IImageMetadata>();
 
-        if (TmdbSeasons.Select(s => s.SeasonNumber).Contains(1)) {
+        var isPrimarySeason = TmdbSeasons.Select(s => s.SeasonNumber).Contains(1);
+
+        if (isPrimarySeason) {
           foreach (var xref in TmdbShowCrossReferences)
               images.AddRange(xref.GetImages(entityType, preferredImages));
         }
@@ -381,7 +383,7 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
         foreach (var xref in TmdbMovieCrossReferences.DistinctBy(xref => xref.TmdbMovieID))
             images.AddRange(xref.GetImages(entityType, preferredImages));
             
-        if (!TmdbSeasons.Select(s => s.SeasonNumber).Contains(1)) {
+        if (!isPrimarySeason) {
           foreach (var xref in TmdbShowCrossReferences)
               images.AddRange(xref.GetImages(entityType, preferredImages));
         }
@@ -437,6 +439,7 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
             .Select(xref => xref.TmdbSeasonCrossReference)
             .WhereNotNull()
             .DistinctBy(xref => xref.TmdbSeasonID)
+            .Where(s => s.TmdbSeason.SeasonNumber != 0)
             .ToList();
 
     public IReadOnlyList<TMDB_Season> TmdbSeasons => TmdbSeasonCrossReferences
