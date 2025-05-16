@@ -379,10 +379,14 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
                     : poster
                 );
         }
-        foreach (var xref in TmdbShowCrossReferences)
-            images.AddRange(xref.GetImages(entityType, preferredImages));
-        foreach (var xref in TmdbSeasonCrossReferences)
-            images.AddRange(xref.GetImages(entityType, preferredImages));
+
+        if (TopLevelAnimeGroup.MainSeries.AniDB_ID == AniDB_ID) {
+          foreach (var xref in TmdbShowCrossReferences)
+              images.AddRange(xref.GetImages(entityType, preferredImages));
+        } else {
+          foreach (var xref in TmdbSeasonCrossReferences)
+              images.AddRange(xref.GetImages(entityType, preferredImages));
+        }
         foreach (var xref in TmdbMovieCrossReferences.DistinctBy(xref => xref.TmdbMovieID))
             images.AddRange(xref.GetImages(entityType, preferredImages));
 
