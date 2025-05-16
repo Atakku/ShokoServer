@@ -1661,12 +1661,7 @@ public class TmdbMetadataService
 
             foreach (var tmdbSeason in tmdbShow.TmdbSeasons)
             {
-                if (tmdbSeason.SeasonNumber == 1) {
-                    await _imageService.DownloadImagesByType(images.Posters, ImageEntityType.Poster, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoPosters, languages, forceDownload);
-                } else {
-                    await DownloadSeasonImages(tmdbSeason.TmdbSeasonID, tmdbSeason.TmdbShowID, tmdbSeason.SeasonNumber, tmdbShow.OriginalLanguage, forceDownload);
-                }
-
+                await DownloadSeasonImages(tmdbSeason.TmdbSeasonID, tmdbSeason.TmdbShowID, tmdbSeason.SeasonNumber, tmdbShow.OriginalLanguage, forceDownload);
                 foreach (var tmdbEpisode in tmdbSeason.TmdbEpisodes)
                 {
                     await DownloadEpisodeImages(tmdbEpisode.TmdbEpisodeID, tmdbEpisode.TmdbShowID, tmdbSeason.SeasonNumber, tmdbEpisode.EpisodeNumber, tmdbShow.OriginalLanguage, forceDownload);
@@ -1701,9 +1696,15 @@ public class TmdbMetadataService
 
         _logger.LogDebug("Downloading images for season {SeasonNumber}. (Show={ShowId}, Season={SeasonId})", seasonNumber, showId, seasonId);
 
-        var images = await UseClient(c => c.GetTvSeasonImagesAsync(showId, seasonNumber), $"Get images for season {seasonNumber} in show {showId}").ConfigureAwait(false);
         var languages = GetLanguages(mainLanguage);
-        await _imageService.DownloadImagesByType(images.Posters, ImageEntityType.Poster, ForeignEntityType.Season, seasonId, settings.TMDB.MaxAutoPosters, languages, forceDownload);
+
+        if (seasonNumber == 1) {
+            var images = await UseClient(c => c.GetTvShowImagesAsync(showId), $"Get images for show {showId}").ConfigureAwait(false);
+            await _imageService.DownloadImagesByType(images.Posters, ImageEntityType.Poster, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoPosters, languages, forceDownload);
+        } else {
+            var images = await UseClient(c => c.GetTvSeasonImagesAsync(showId, seasonNumber), $"Get images for season {seasonNumber} in show {showId}").ConfigureAwait(false);
+            await _imageService.DownloadImagesByType(images.Posters, ImageEntityType.Poster, ForeignEntityType.Season, seasonId, settings.TMDB.MaxAutoPosters, languages, forceDownload);
+        }
     }
 
     private async Task DownloadEpisodeImages(int episodeId, int showId, int seasonNumber, int episodeNumber, TitleLanguage mainLanguage, bool forceDownload = false)
