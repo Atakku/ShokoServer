@@ -414,6 +414,26 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
             .DistinctBy(image => image.ImageType)
             .ToDictionary(image => image.ImageType);
         var images = new List<IImageMetadata>();
+        var isPrimarySeason = TmdbSeasons.Select(s => s.SeasonNumber).Contains(1);
+
+        if (isPrimarySeason) {
+          foreach (var xref in TmdbShowCrossReferences)
+              images.AddRange(xref.GetImages(entityType, preferredImages));
+        }
+
+        foreach (var xref in TmdbSeasonCrossReferences.Where(s => s.TmdbSeason.SeasonNumber != 0))
+            images.AddRange(xref.GetImages(entityType, preferredImages));
+
+        foreach (var xref in TmdbMovieCrossReferences.DistinctBy(xref => xref.TmdbMovieID))
+            images.AddRange(xref.GetImages(entityType, preferredImages));
+
+        foreach (var xref in TmdbSeasonCrossReferences.Where(s => s.TmdbSeason.SeasonNumber == 0))
+            images.AddRange(xref.GetImages(entityType, preferredImages));
+
+        if (!isPrimarySeason) {
+          foreach (var xref in TmdbShowCrossReferences)
+              images.AddRange(xref.GetImages(entityType, preferredImages));
+        }
         if (!entityType.HasValue || entityType.Value is ImageEntityType.Poster)
         {
             var poster = AniDB_Anime?.GetImageMetadata(false);
@@ -423,12 +443,12 @@ public class SVR_AnimeSeries : AnimeSeries, IShokoSeries
                     : poster
                 );
         }
-        foreach (var xref in TmdbShowCrossReferences)
-            images.AddRange(xref.GetImages(entityType, preferredImages));
-        foreach (var xref in TmdbSeasonCrossReferences)
-            images.AddRange(xref.GetImages(entityType, preferredImages));
-        foreach (var xref in TmdbMovieCrossReferences.DistinctBy(xref => xref.TmdbMovieID))
-            images.AddRange(xref.GetImages(entityType, preferredImages));
+        //foreach (var xref in TmdbShowCrossReferences)
+        //    images.AddRange(xref.GetImages(entityType, preferredImages));
+        //foreach (var xref in TmdbSeasonCrossReferences)
+        //    images.AddRange(xref.GetImages(entityType, preferredImages));
+        //foreach (var xref in TmdbMovieCrossReferences.DistinctBy(xref => xref.TmdbMovieID))
+        //    images.AddRange(xref.GetImages(entityType, preferredImages));
 
         return images
             .DistinctBy(image => (image.ImageType, image.Source, image.ID))

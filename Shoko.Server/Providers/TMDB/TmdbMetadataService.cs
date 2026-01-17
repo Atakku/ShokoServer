@@ -47,6 +47,8 @@ namespace Shoko.Server.Providers.TMDB;
 
 public class TmdbMetadataService
 {
+    private static readonly List<TitleLanguage> NoLanguage = new List<TitleLanguage> { TitleLanguage.None };
+
     private static readonly int _maxConcurrency = Math.Min(6, Environment.ProcessorCount);
 
     private static TmdbMetadataService? _instance = null;
@@ -796,7 +798,7 @@ public class TmdbMetadataService
         if (settings.TMDB.AutoDownloadLogos)
             await _imageService.DownloadImagesByType(null, movie.ReleasedAt, images.Logos, ImageEntityType.Logo, ForeignEntityType.Movie, movieId, settings.TMDB.MaxAutoLogos, languages, forceDownload);
         if (settings.TMDB.AutoDownloadBackdrops)
-            await _imageService.DownloadImagesByType(movie.BackdropPath, movie.ReleasedAt, images.Backdrops, ImageEntityType.Backdrop, ForeignEntityType.Movie, movieId, settings.TMDB.MaxAutoBackdrops, languages, forceDownload);
+            await _imageService.DownloadImagesByType(movie.BackdropPath, movie.ReleasedAt, images.Backdrops, ImageEntityType.Backdrop, ForeignEntityType.Movie, movieId, settings.TMDB.MaxAutoBackdrops, NoLanguage, forceDownload);
     }
 
     #endregion
@@ -1718,7 +1720,7 @@ public class TmdbMetadataService
         if (settings.TMDB.AutoDownloadLogos)
             await _imageService.DownloadImagesByType(null, show.FirstAiredAt, images.Logos, ImageEntityType.Logo, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoLogos, languages, forceDownload);
         if (settings.TMDB.AutoDownloadBackdrops)
-            await _imageService.DownloadImagesByType(show.BackdropPath, show.FirstAiredAt, images.Backdrops, ImageEntityType.Backdrop, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoBackdrops, languages, forceDownload);
+            await _imageService.DownloadImagesByType(show.BackdropPath, show.FirstAiredAt, images.Backdrops, ImageEntityType.Backdrop, ForeignEntityType.Show, showId, settings.TMDB.MaxAutoBackdrops, NoLanguage, forceDownload);
     }
 
     private async Task DownloadSeasonImages(int seasonId, int showId, int seasonNumber, TitleLanguage? mainLanguage = null, bool forceDownload = false)
